@@ -6,30 +6,8 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { getJwtSecret } from './utils/jwt.js'
 
-function initEnvVariables() {
-    dotenv.config()
-    const varsToCheck = ['API_PORT', 'FRONT_ORIGIN']
-
-    varsToCheck.forEach(varName => {
-        const variable = process.env[varName]
-
-        if (variable == undefined || variable === '') {
-            console.error(`Missing '${varName}' in .env`)
-            process.exit()
-        }
-    })
-}
-
-initEnvVariables()
-
 const app = express()
 const appRouter = express.Router()
-const port = process.env.API_PORT
-
-app.use(cors({ origin: process.env.FRONT_ORIGIN, credentials: true }))
-app.use(cookieParser())
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
 
 const authMiddleware: RequestHandler = function (req, res, next) {
     const token = req.cookies.jwt
@@ -48,11 +26,38 @@ const authMiddleware: RequestHandler = function (req, res, next) {
     next()
 }
 
-appRouter.get('/', authMiddleware, async (req, res, next) => {
+const appRouterGet: RequestHandler = (req, res) => {
     res.send({ code: 200, message: "SnippetsManager v1.0" })
-})
+}
 
-appRouter.use(userRouter)
-app.use('/v1/', appRouter)
+function initEnvVariables() {
+    dotenv.config()
+    const varsToCheck = ['API_PORT', 'FRONT_ORIGIN']
 
-app.listen(port, () => console.log(`Listening on port ${port}`))
+    varsToCheck.forEach(varName => {
+        const variable = process.env[varName]
+
+        if (variable == undefined || variable === '') {
+            console.error(`Missing '${varName}' in .env`)
+            process.exit()
+        }
+    })
+}
+
+function startServer(): void {
+    initEnvVariables()
+
+    app.use(cors({ origin: process.env.FRONT_ORIGIN, credentials: true }))
+    app.use(cookieParser())
+    app.use(express.json())
+    app.use(express.urlencoded({ extended: false }))
+
+    appRouter.get('/', authMiddleware, appRouterGet)
+
+    appRouter.use(userRouter)
+    app.use('/v1/', appRouter)
+
+    app.listen(process.env.API_PORT, () => console.log(`Listening on port ${process.env.API_PORT}`))
+}
+
+startServer()
