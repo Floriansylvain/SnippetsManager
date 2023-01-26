@@ -1,0 +1,36 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>170</x><y>10</y><w>210</w><h>140</h></coordinates><panel_attributes>USER
+--
+_id: INT_
+email: VARCHAR
+password: VARCHAR
+name: VARCHAR
+picture_path: VARCHAR
+created_at: DATE
+updated_at: DATE</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>260</x><y>140</y><w>50</w><h>140</h></coordinates><panel_attributes>m1=1
+m2=0..*</panel_attributes><additional_attributes>10;10;10;120</additional_attributes></element><element><id>UMLClass</id><coordinates><x>170</x><y>260</y><w>210</w><h>170</h></coordinates><panel_attributes>SNIPPET
+--
+_id: INT_
+title: VARCHAR
+code: LONGTEXT
+created_at: DATE
+updated_at: DATE
+_user_id: INT_
+_tag_id: INT_
+_category_id: INT_
+_language_id: INT_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>470</y><w>100</w><h>60</h></coordinates><panel_attributes>TAG
+--
+_id: INT_
+name: VARCHAR</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>170</x><y>540</y><w>110</w><h>60</h></coordinates><panel_attributes>CATEGORY
+--
+_id: INT_
+name: VARCHAR</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>220</x><y>420</y><w>50</w><h>140</h></coordinates><panel_attributes>m1=1
+m2=0..*</panel_attributes><additional_attributes>10;120;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>300</y><w>100</w><h>60</h></coordinates><panel_attributes>SNIPPET_TAG
+--
+_snippet_id: INT_
+_tag_id: INT_</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>320</y><w>160</w><h>40</h></coordinates><panel_attributes>m1=1
+m2=0..*</panel_attributes><additional_attributes>10;10;140;10</additional_attributes></element><element><id>Relation</id><coordinates><x>550</x><y>350</y><w>50</w><h>140</h></coordinates><panel_attributes>m1=1
+m2=0..*</panel_attributes><additional_attributes>10;120;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>340</x><y>540</y><w>100</w><h>60</h></coordinates><panel_attributes>LANGUAGE
+--
+_id: INT_
+name: VARCHAR</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>320</x><y>420</y><w>100</w><h>140</h></coordinates><panel_attributes>m1=0..*
+m2=1</panel_attributes><additional_attributes>10;10;10;70;70;70;70;120</additional_attributes></element></diagram>
