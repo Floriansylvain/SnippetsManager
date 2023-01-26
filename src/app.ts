@@ -9,7 +9,7 @@ import { getJwtSecret } from './utils/jwt.js'
 const app = express()
 const appRouter = express.Router()
 
-const authMiddleware: RequestHandler = function (req, res, next) {
+const authMiddleware: RequestHandler = (req, res, next) => {
     const token = req.cookies.jwt
     if (token == undefined) {
         res.status(400).send({ message: 'Cannot find jwt auth cookie.' })
