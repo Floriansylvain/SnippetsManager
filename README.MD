@@ -4,6 +4,7 @@
 
 - API_PORT
 - MYSQL_ROOT_PASSWORD
+- DATABASE_URL `not needed when docker`
 
 ## Usage
 

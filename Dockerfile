@@ -4,10 +4,11 @@ WORKDIR /app
 
 COPY package.json ./
 COPY package-lock.json ./
+COPY tsconfig.json ./
 COPY .env ./
-COPY app.js ./
-ADD routes ./routes/
+ADD src ./src/
 ADD prisma ./prisma/
-RUN npm ci
 
-CMD ["npm", "run", "start"]
+RUN npm ci
+RUN npx prisma generate
+CMD npm start

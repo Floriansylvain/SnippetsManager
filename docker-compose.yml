@@ -5,8 +5,8 @@ services:
       - .env
     networks:
       - back-net
-    ports:
-      - 3306:3306
+    # ports:
+    #   - 3306:3306
     environment:
       - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
       - "MYSQL_DATABASE=snippetsmanager"
@@ -30,7 +30,7 @@ services:
     networks:
       - back-net
     ports:
-      - "${API_PORT}:3000"
+      - "${API_PORT}:${API_PORT}"
 
 networks:
   back-net:
