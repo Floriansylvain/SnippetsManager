@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String
+  password     String
+  name         String
+  picture_path String
+  created_at   DateTime
+  updated_at   DateTime
+  Snippet      Snippet[]
+}
+
+model Snippet {
+  id         Int      @id @default(autoincrement())
+  title      String
+  code       String
+  created_at DateTime
+  updated_at DateTime
+
+  user_id     Int
+  user        User          @relation(fields: [user_id], references: [id])
+  category_id Int
+  category    Category      @relation(fields: [category_id], references: [id])
+  language_id Int
+  language    Language      @relation(fields: [language_id], references: [id])
+  Snippet_tag Snippet_tag[]
+}
+
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Snippet Snippet[]
+}
+
+model Language {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Snippet Snippet[]
+}
+
+model Snippet_tag {
+  tag_id     Int
+  tag        Tag     @relation(fields: [tag_id], references: [id])
+  snippet_id Int
+  snippet    Snippet @relation(fields: [snippet_id], references: [id])
+
+  @@id([tag_id, snippet_id])
+}
+
+model Tag {
+  id          Int           @id @default(autoincrement())
+  name        String
+  Snippet_tag Snippet_tag[]
+}

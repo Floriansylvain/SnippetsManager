@@ -1,9 +1,7 @@
-mysql-data
+.dockerignore
 
 node_modules
 dist
-
-.env
 
 .vscode
 .idea
