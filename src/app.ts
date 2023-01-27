@@ -6,9 +6,6 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { getJwtSecret } from './utils/jwt.js'
 
-const app = express()
-const appRouter = express.Router()
-
 const authMiddleware: RequestHandler = (req, res, next) => {
     const token = req.cookies.jwt
     if (token == undefined) {
@@ -30,7 +27,7 @@ const appRouterGet: RequestHandler = (req, res) => {
     res.send({ code: 200, message: "SnippetsManager v1.0" })
 }
 
-function initEnvVariables() {
+function initEnvVariables(): void {
     dotenv.config()
     const varsToCheck = ['API_PORT', 'FRONT_ORIGIN']
 
@@ -44,20 +41,25 @@ function initEnvVariables() {
     })
 }
 
-function startServer(): void {
+export function initServer(): express.Express {
     initEnvVariables()
+
+    const app = express()
+    const appRouter = express.Router()
 
     app.use(cors({ origin: process.env.FRONT_ORIGIN, credentials: true }))
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: false }))
 
-    appRouter.get('/', authMiddleware, appRouterGet)
+    appRouter.get('/', appRouterGet)
 
     appRouter.use(userRouter)
     app.use('/v1/', appRouter)
 
-    app.listen(process.env.API_PORT, () => console.log(`Listening on port ${process.env.API_PORT}`))
+    return app
 }
 
-startServer()
+export function startServer(app: express.Express): void {
+    app.listen(process.env.API_PORT, () => console.log(`Listening on port ${process.env.API_PORT}`))
+}

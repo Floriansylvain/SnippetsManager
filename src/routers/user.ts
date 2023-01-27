@@ -1,5 +1,5 @@
 import { PrismaClient, User } from '@prisma/client'
-import express from 'express'
+import express, { RequestHandler } from 'express'
 
 import { z } from 'zod'
 import bcrypt from 'bcrypt'
@@ -29,6 +29,27 @@ async function isUserEmailAlreadyUsed(email: string): Promise<boolean> {
     return user != undefined
 }
 
+async function createUser(email: string, password: string) {
+    await prisma.user.create({
+        data: {
+            email: email,
+            password: password,
+            name: '',
+            picture_path: '',
+            created_at: new Date(),
+            updated_at: new Date()
+        },
+    })
+}
+
+async function getUser(email: string): Promise<User | null> {
+    return await prisma.user.findFirst({
+        where: {
+            email: email
+        }
+    })
+}
+
 function parseLoginData(data: any): LoginData | undefined {
     try {
         const loginData: LoginData = LoginValidator.parse(data)
@@ -38,34 +59,28 @@ function parseLoginData(data: any): LoginData | undefined {
     }
 }
 
-userRouter.post("/login", async (req, res) => {
+const userRouterPostLogin: RequestHandler = async (req, res) => {
     const loginData = parseLoginData(req.body)
     if (loginData === undefined) {
         res.status(400).json({ message: 'Incorrect credentials format.' })
         return;
     }
 
-    const user = await prisma.user.findFirst({
-        where: {
-            email: loginData.email
-        }
-    })
-
+    const user = await getUser(loginData.email)
     if (await isUserValid(user, loginData) === false) {
         res.status(400).json({ message: 'Incorrect credentials.' })
         return;
     }
 
     const jwtToken = jwt.sign({}, getJwtSecret(), { expiresIn: "1h" })
-
     res.cookie('jwt', jwtToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict'
     }).json({ message: "Logged in! httpOnly cookie set." })
-})
+}
 
-userRouter.post("/register", async (req, res) => {
+const userRouterPostRegister: RequestHandler = async (req, res) => {
     const loginData = parseLoginData(req.body)
     if (loginData == undefined) {
         res.status(400).json({ message: 'Incorrect credentials format.' })
@@ -79,18 +94,12 @@ userRouter.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(loginData.password, 10)
 
-    await prisma.user.create({
-        data: {
-            email: loginData.email,
-            password: hashedPassword,
-            name: '',
-            picture_path: '',
-            created_at: new Date(),
-            updated_at: new Date()
-        },
-    })
+    createUser(loginData.email, hashedPassword)
 
     res.json({ message: 'User successfully created!' })
-})
+}
+
+userRouter.post("/login", userRouterPostLogin)
+userRouter.post("/register", userRouterPostRegister)
 
 export default userRouter
