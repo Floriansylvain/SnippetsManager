@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   email        String
   password     String
   name         String
@@ -16,6 +16,7 @@ model User {
   created_at   DateTime
   updated_at   DateTime
   Snippet      Snippet[]
+  Category     Category[]
 }
 
 model Snippet {
@@ -37,6 +38,8 @@ model Snippet {
 model Category {
   id      Int       @id @default(autoincrement())
   name    String
+  user_id Int
+  user    User      @relation(fields: [user_id], references: [id])
   Snippet Snippet[]
 }
 
