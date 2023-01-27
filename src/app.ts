@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { getJwtSecret } from './utils/jwt.js'
+import sessionRouter from './routers/session.js'
 
 const authMiddleware: RequestHandler = (req, res, next) => {
     const token = req.cookies.jwt
@@ -54,7 +55,9 @@ export function initServer(): express.Express {
 
     appRouter.get('/', appRouterGet)
 
-    appRouter.use(userRouter)
+    appRouter.use('/session/', sessionRouter)
+    appRouter.use('/user/', authMiddleware, userRouter)
+
     app.use('/v1/', appRouter)
 
     return app

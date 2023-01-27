@@ -13,8 +13,8 @@ model User {
   password     String
   name         String
   picture_path String
-  created_at   DateTime
-  updated_at   DateTime
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
   Snippet      Snippet[]
   Category     Category[]
 }
@@ -23,8 +23,8 @@ model Snippet {
   id         Int      @id @default(autoincrement())
   title      String
   code       String
-  created_at DateTime
-  updated_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   user_id     Int
   user        User          @relation(fields: [user_id], references: [id])
