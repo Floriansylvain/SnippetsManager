@@ -42,12 +42,8 @@ async function createUser(email: string, password: string) {
     })
 }
 
-async function getUser(email: string): Promise<User | null> {
-    return await prisma.user.findFirst({
-        where: {
-            email: email
-        }
-    })
+async function getUserByEmail(email: string): Promise<User | null> {
+    return await prisma.user.findFirst({ where: { email } })
 }
 
 function parseLoginData(data: any): LoginData | undefined {
@@ -66,7 +62,7 @@ export const userRouterPostLogin: RequestHandler = async (req, res) => {
         return;
     }
 
-    const user = await getUser(loginData.email)
+    const user = await getUserByEmail(loginData.email)
     if (await isUserValid(user, loginData) === false) {
         res.status(400).json({ message: 'Incorrect credentials.' })
         return;
