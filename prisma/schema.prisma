@@ -17,6 +17,7 @@ model User {
   updated_at   DateTime   @updatedAt
   Snippet      Snippet[]
   Category     Category[]
+  Tag          Tag[]
 }
 
 model Snippet {
@@ -61,5 +62,7 @@ model Snippet_tag {
 model Tag {
   id          Int           @id @default(autoincrement())
   name        String
+  user_id     Int
+  user        User          @relation(fields: [user_id], references: [id])
   Snippet_tag Snippet_tag[]
 }
