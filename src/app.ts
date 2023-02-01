@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 import { getJwtSecret } from './utils/jwt.js'
 import sessionRouter from './routers/session.js'
 import categoryRouter from './routers/category.js'
+import snippetRouter from './routers/snippet'
 
 const authMiddleware: RequestHandler = (req, res, next) => {
     const token = req.cookies.jwt
@@ -59,6 +60,7 @@ export function initServer(): express.Express {
     appRouter.use('/session/', sessionRouter)
     appRouter.use('/user/', authMiddleware, userRouter)
     appRouter.use('/category/', authMiddleware, categoryRouter)
+    appRouter.use('/snippet/', authMiddleware, snippetRouter)
 
     app.use('/v1/', appRouter)
 

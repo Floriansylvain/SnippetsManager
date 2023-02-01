@@ -13,6 +13,7 @@ const testUserCredentials = {
 }
 
 let category_id: number
+let snippet_id: number
 
 // Mettre a jour les routes Category en stockant les IDs sur GET pour reutiliser sur DELETE
 
@@ -129,7 +130,7 @@ describe('POST /v1/category', () => {
 })
 
 describe('GET /v1/category', () => {
-    it('returns status code 200 and the category created', async () => {
+    it('returns status code 200 and the categories', async () => {
         const res = await request(app)
             .get('/v1/category')
             .set('Content-Type', 'application/json')
@@ -196,6 +197,59 @@ describe('DELETE /v1/category', () => {
             }))
 
         expect(res.status).toEqual(400)
+        expect(res.body).toHaveProperty('message')
+    })
+})
+
+describe('POST /v1/snippet', () => {
+    it('returns status code 200 and the snippets', async () => {
+        const res = await request(app)
+            .post('/v1/snippet')
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+            .send(JSON.stringify({
+                title: 'Vue3 CompAPI TS script-template-style',
+                code: `<script setup lang="ts">
+                    </script>
+
+                    <template>
+                    </template>
+
+                    <style scoped>
+                    </style>`,
+                language: 'vue'
+            }))
+
+        expect(res.status).toEqual(200)
+        expect(res.body).toHaveProperty('message')
+    })
+})
+
+describe('GET /v1/snippet', () => {
+    it('returns status code 200 and success message', async () => {
+        const res = await request(app)
+            .get('/v1/snippet')
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+
+        snippet_id = res.body.snippets[0].id
+
+        expect(res.status).toEqual(200)
+        expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
+    })
+})
+
+describe('DELETE /v1/snippet', () => {
+    it('returns status code 200 and success message', async () => {
+        const res = await request(app)
+            .delete('/v1/snippet')
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+            .send(JSON.stringify({
+                id: snippet_id
+            }))
+
+        expect(res.status).toEqual(200)
         expect(res.body).toHaveProperty('message')
     })
 })
