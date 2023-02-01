@@ -149,6 +149,34 @@ describe('GET /v1/category', () => {
     })
 })
 
+describe('DELETE /v1/category', () => {
+    it('returns status code 200 and a success message', async () => {
+        const res = await request(app)
+            .delete('/v1/category')
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+            .send(JSON.stringify({
+                name: 'VueJS Composition API'
+            }))
+
+        expect(res.status).toEqual(200)
+        expect(res.body).toHaveProperty('message')
+    })
+
+    it('returns status code 400 and an error message', async () => {
+        const res = await request(app)
+            .delete('/v1/category')
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+            .send(JSON.stringify({
+                blablabla: 'pouet'
+            }))
+
+        expect(res.status).toEqual(400)
+        expect(res.body).toHaveProperty('message')
+    })
+})
+
 describe('PUT /v1/user', () => {
     it('returns status code 200 and success message', async () => {
         const res = await request(app)

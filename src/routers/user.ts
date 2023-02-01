@@ -21,6 +21,16 @@ export function parseJwtUserId(jwtoken: string): number | undefined {
     return payload.userId
 }
 
+export const userIdMiddleware: RequestHandler = (req, res, next) => {
+    const userId = parseJwtUserId(req.cookies.jwt)
+    if (userId === undefined) {
+        res.status(400).json({ message: 'Incorrect JWT payload.' })
+        return;
+    }
+    req.body.userId = userId
+    next()
+}
+
 const userRouterPut: RequestHandler = async (req, res) => {
     const userId = parseJwtUserId(req.cookies.jwt)
     if (userId === undefined) {
