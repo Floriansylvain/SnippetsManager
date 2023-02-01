@@ -6,8 +6,12 @@ import { userIdMiddleware } from "./user.js"
 const categoryRouter = express.Router()
 const prisma = new PrismaClient()
 
-const categoryData = z.object({
+const categoryPostParser = z.object({
     name: z.string().max(50)
+}).required()
+
+const categoryDeleteParser = z.object({
+    id: z.number()
 }).required()
 
 const categoryGet: RequestHandler = async (req, res) => {
@@ -25,7 +29,7 @@ const categoryGet: RequestHandler = async (req, res) => {
 
 const categoryPost: RequestHandler = async (req, res) => {
     try {
-        const newCategory = categoryData.parse(req.body)
+        const newCategory = categoryPostParser.parse(req.body)
         await prisma.category.create({
             data: {
                 name: newCategory.name,
@@ -44,10 +48,10 @@ const categoryDelete: RequestHandler = async (req, res) => {
     let deleted: Prisma.BatchPayload
 
     try {
-        const categoryToDel = categoryData.parse(req.body)
+        const categoryToDel = categoryDeleteParser.parse(req.body)
         deleted = await prisma.category.deleteMany({
             where: {
-                name: categoryToDel.name,
+                id: categoryToDel.id,
                 user_id: req.body.userId
             }
         })

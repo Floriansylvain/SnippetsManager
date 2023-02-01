@@ -12,6 +12,8 @@ const testUserCredentials = {
     password: "aaaaaaaaaa"
 }
 
+// Mettre a jour les routes Category en stockant les IDs sur GET pour reutiliser sur DELETE
+
 beforeAll(async () => {
     await prisma.user.create({
         data: {
