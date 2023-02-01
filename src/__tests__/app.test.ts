@@ -130,12 +130,9 @@ describe('GET /v1/category', () => {
             .get('/v1/category')
             .set('Content-Type', 'application/json')
             .set('Cookie', jwtCookie as string)
-            .send(JSON.stringify({
-                name: 'VueJS Composition API'
-            }))
 
         expect(res.status).toEqual(200)
-        expect(res.body).toHaveProperty('category')
+        expect(res.body).toHaveProperty('categories')
     })
 
     it('returns status code 400 and error message', async () => {

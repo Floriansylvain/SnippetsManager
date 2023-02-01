@@ -10,19 +10,23 @@ const categoryData = z.object({
     name: z.string().max(50)
 }).required()
 
-// TODO Mettre le where sur le user id plutot que sur un nom de category
 const categoryGet: RequestHandler = async (req, res) => {
-    let category: Category | null = null
+    const userId = parseJwtUserId(req.cookies.jwt)
+    if (userId === undefined) {
+        res.status(400).json({ message: 'Incorrect JWT payload.' })
+        return;
+    }
+
+    let categories: Category[] | null = null
 
     try {
-        const categoryGet = categoryData.parse(req.body)
-        category = await prisma.category.findFirst({ where: { name: categoryGet.name } })
+        categories = await prisma.category.findMany({ where: { user_id: userId } })
     } catch (error: any) {
         res.status(400).json({ message: (error.issues ?? error) })
         return;
     }
 
-    res.json({ category })
+    res.json({ categories })
 }
 
 const categoryPost: RequestHandler = async (req, res) => {
