@@ -11,7 +11,7 @@ const editableUserData = z.object({
     picture_path: z.string().optional()
 })
 
-function parseJwtUserId(jwtoken: string): number | undefined {
+export function parseJwtUserId(jwtoken: string): number | undefined {
     const payload = jwt.decode(jwtoken)
     if (payload == undefined) {
         return undefined
