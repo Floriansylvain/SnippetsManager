@@ -10,6 +10,7 @@ const categoryData = z.object({
     name: z.string().max(50)
 }).required()
 
+// TODO Mettre le where sur le user id plutot que sur un nom de category
 const categoryGet: RequestHandler = async (req, res) => {
     let category: Category | null = null
 
@@ -33,7 +34,7 @@ const categoryPost: RequestHandler = async (req, res) => {
 
     try {
         const newCategory = categoryData.parse(req.body)
-        prisma.category.create({
+        await prisma.category.create({
             data: {
                 name: newCategory.name,
                 user_id: userId

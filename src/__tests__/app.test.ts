@@ -2,7 +2,6 @@ import { initServer } from '../app.js'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
-import { equals } from '@jest/expect-utils'
 
 const prisma = new PrismaClient()
 const app = initServer()
