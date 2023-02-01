@@ -28,7 +28,7 @@ model Snippet {
   updated_at DateTime @updatedAt
 
   user_id     Int
-  user        User          @relation(fields: [user_id], references: [id])
+  user        User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category_id Int
   category    Category      @relation(fields: [category_id], references: [id])
   language_id Int
@@ -40,7 +40,7 @@ model Category {
   id      Int       @id @default(autoincrement())
   name    String
   user_id Int
-  user    User      @relation(fields: [user_id], references: [id])
+  user    User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   Snippet Snippet[]
 }
 
@@ -63,6 +63,6 @@ model Tag {
   id          Int           @id @default(autoincrement())
   name        String
   user_id     Int
-  user        User          @relation(fields: [user_id], references: [id])
+  user        User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   Snippet_tag Snippet_tag[]
 }
