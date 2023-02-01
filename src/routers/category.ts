@@ -14,6 +14,12 @@ const categoryDeleteParser = z.object({
     id: z.number()
 }).required()
 
+const categoryUpdateParser = z.object({
+    id: z.number(),
+    name: z.string().max(50)
+}).required()
+
+// TODO Ajouter pagination et queries de recherche
 const categoryGet: RequestHandler = async (req, res) => {
     let categories: Category[] | null = null
 
@@ -44,6 +50,28 @@ const categoryPost: RequestHandler = async (req, res) => {
     res.json({ message: 'Category successfully added.' })
 }
 
+const categoryUpdate: RequestHandler = async (req, res) => {
+    let updated: Prisma.BatchPayload
+
+    try {
+        const categoryToUpdate = categoryUpdateParser.parse(req.body)
+        updated = await prisma.category.updateMany({
+            where: {
+                id: categoryToUpdate.id,
+                user_id: req.body.userId
+            },
+            data: {
+                name: categoryToUpdate.name
+            }
+        })
+    } catch (error: any) {
+        res.status(400).json({ message: (error.issues ?? error) })
+        return;
+    }
+
+    res.json({ message: `${updated.count} category / categories successfully updated.` })
+}
+
 const categoryDelete: RequestHandler = async (req, res) => {
     let deleted: Prisma.BatchPayload
 
@@ -65,6 +93,7 @@ const categoryDelete: RequestHandler = async (req, res) => {
 
 categoryRouter.get('/', userIdMiddleware, categoryGet)
 categoryRouter.post('/', userIdMiddleware, categoryPost)
+categoryRouter.put('/', userIdMiddleware, categoryUpdate)
 categoryRouter.delete('/', userIdMiddleware, categoryDelete)
 
 export default categoryRouter
