@@ -29,8 +29,8 @@ model Snippet {
 
   user_id     Int
   user        User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  category_id Int
-  category    Category      @relation(fields: [category_id], references: [id])
+  category_id Int?
+  category    Category?     @relation(fields: [category_id], references: [id])
   language_id Int
   language    Language      @relation(fields: [language_id], references: [id])
   Snippet_tag Snippet_tag[]
