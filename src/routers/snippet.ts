@@ -16,6 +16,15 @@ const snippetDeleteParser = z.object({
     id: z.number(),
 }).required()
 
+const snippetUpdateParser = z.object({
+    code: z.string().optional(),
+    title: z.string().max(50).optional(),
+    language: z.string().max(32).optional()
+})
+
+const paramsIdParser = z.object({
+    id: z.coerce.number(),
+}).required()
 
 // TODO Ajouter paramètres sur la requête pour rechercher des snippets
 // TODO Ajouter pagination
@@ -58,6 +67,26 @@ const snippetPost: RequestHandler = async (req, res) => {
     res.json({ message: 'Snippet successfully added.' })
 }
 
+const snippetUpdate: RequestHandler = async (req, res) => {
+    let updated: Prisma.BatchPayload
+
+    try {
+        const snippetToUpdate = snippetUpdateParser.parse(req.body)
+        updated = await prisma.snippet.updateMany({
+            where: {
+                id: paramsIdParser.parse(req.params).id,
+                user_id: req.body.userId
+            },
+            data: snippetToUpdate
+        })
+    } catch (error: any) {
+        res.status(400).json({ message: (error.issues ?? error) })
+        return;
+    }
+
+    res.json({ message: `${updated.count} snippet / categories successfully updated.` })
+}
+
 const snippetDelete: RequestHandler = async (req, res) => {
     let deleted: Prisma.BatchPayload
 
@@ -77,10 +106,9 @@ const snippetDelete: RequestHandler = async (req, res) => {
     res.json({ message: `${deleted.count} snippet(s) successfully deleted.` })
 }
 
-// TODO update snippet
-
 snippetRouter.get('/', userIdMiddleware, snippetGet)
 snippetRouter.post('/', userIdMiddleware, snippetPost)
+snippetRouter.put('/:id', userIdMiddleware, snippetUpdate)
 snippetRouter.delete('/', userIdMiddleware, snippetDelete)
 
 export default snippetRouter

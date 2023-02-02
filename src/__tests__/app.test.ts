@@ -15,8 +15,6 @@ const testUserCredentials = {
 let category_id: number
 let snippet_id: number
 
-// Mettre a jour les routes Category en stockant les IDs sur GET pour reutiliser sur DELETE
-
 beforeAll(async () => {
     await prisma.user.create({
         data: {
@@ -236,6 +234,24 @@ describe('GET /v1/snippet', () => {
 
         expect(res.status).toEqual(200)
         expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
+    })
+})
+
+describe('PUT /v1/snippet/:id', () => {
+    it('returns status code 200 and success message', async () => {
+        const res = await request(app)
+            .put(`/v1/snippet/${snippet_id}`)
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+            .send(JSON.stringify({
+                code: '<p>en fait non à vuejs</p>',
+                // language: 'html'
+            }))
+
+        console.debug(res.body)
+
+        expect(res.status).toEqual(200)
+        expect(res.body).toHaveProperty('message')
     })
 })
 
