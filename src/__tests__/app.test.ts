@@ -127,7 +127,7 @@ describe('POST /v1/category', () => {
     })
 })
 
-describe('GET /v1/category', () => {
+describe('GET /v1/category/:id?', () => {
     it('returns status code 200 and the categories', async () => {
         const res = await request(app)
             .get('/v1/category')
@@ -139,16 +139,25 @@ describe('GET /v1/category', () => {
         expect(res.status).toEqual(200)
         expect(res.body.categories[0].name).toEqual('VueJS Composition API')
     })
+
+    it('returns status code 200 and the categories', async () => {
+        const res = await request(app)
+            .get(`/v1/category/${category_id}`)
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+
+        expect(res.status).toEqual(200)
+        expect(res.body.categories[0].name).toEqual('VueJS Composition API')
+    })
 })
 
-describe('PUT /v1/category', () => {
+describe('PUT /v1/category/:id', () => {
     it('returns status code 200 and a success message', async () => {
         const res = await request(app)
-            .put('/v1/category')
+            .put(`/v1/category/${category_id}`)
             .set('Content-Type', 'application/json')
             .set('Cookie', jwtCookie as string)
             .send(JSON.stringify({
-                id: category_id,
                 name: 'VueJS v3 Composition API'
             }))
 
@@ -158,11 +167,10 @@ describe('PUT /v1/category', () => {
 
     it('returns status code 400 and an error message', async () => {
         const res = await request(app)
-            .put('/v1/category')
+            .put(`/v1/category/${23591}`)
             .set('Content-Type', 'application/json')
             .set('Cookie', jwtCookie as string)
             .send(JSON.stringify({
-                id: 2,
                 pouet: 'salut'
             }))
 
@@ -171,30 +179,14 @@ describe('PUT /v1/category', () => {
     })
 })
 
-describe('DELETE /v1/category', () => {
+describe('DELETE /v1/category/:id', () => {
     it('returns status code 200 and a success message', async () => {
         const res = await request(app)
-            .delete('/v1/category')
+            .delete(`/v1/category/${category_id}`)
             .set('Content-Type', 'application/json')
             .set('Cookie', jwtCookie as string)
-            .send(JSON.stringify({
-                id: category_id
-            }))
 
         expect(res.status).toEqual(200)
-        expect(res.body).toHaveProperty('message')
-    })
-
-    it('returns status code 400 and an error message', async () => {
-        const res = await request(app)
-            .delete('/v1/category')
-            .set('Content-Type', 'application/json')
-            .set('Cookie', jwtCookie as string)
-            .send(JSON.stringify({
-                blablabla: 'pouet'
-            }))
-
-        expect(res.status).toEqual(400)
         expect(res.body).toHaveProperty('message')
     })
 })

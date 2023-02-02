@@ -10,21 +10,25 @@ const categoryPostParser = z.object({
     name: z.string().max(50)
 }).required()
 
-const categoryDeleteParser = z.object({
-    id: z.number()
+const categoryUpdateParser = z.object({
+    name: z.string().max(50)
 }).required()
 
-const categoryUpdateParser = z.object({
-    id: z.number(),
-    name: z.string().max(50)
+const paramsIdParser = z.object({
+    id: z.coerce.number(),
 }).required()
 
 // TODO Ajouter pagination et queries de recherche
 const categoryGet: RequestHandler = async (req, res) => {
     let categories: Category[] | null = null
+    const whereClause: any = { user_id: req.body.userId }
+
+    if (req.params.id != undefined) {
+        whereClause.id = paramsIdParser.parse(req.params).id
+    }
 
     try {
-        categories = await prisma.category.findMany({ where: { user_id: req.body.userId } })
+        categories = await prisma.category.findMany({ where: whereClause })
     } catch (error: any) {
         res.status(400).json({ message: (error.issues ?? error) })
         return;
@@ -57,7 +61,7 @@ const categoryUpdate: RequestHandler = async (req, res) => {
         const categoryToUpdate = categoryUpdateParser.parse(req.body)
         updated = await prisma.category.updateMany({
             where: {
-                id: categoryToUpdate.id,
+                id: paramsIdParser.parse(req.params).id,
                 user_id: req.body.userId
             },
             data: {
@@ -76,10 +80,9 @@ const categoryDelete: RequestHandler = async (req, res) => {
     let deleted: Prisma.BatchPayload
 
     try {
-        const categoryToDel = categoryDeleteParser.parse(req.body)
         deleted = await prisma.category.deleteMany({
             where: {
-                id: categoryToDel.id,
+                id: paramsIdParser.parse(req.params).id,
                 user_id: req.body.userId
             }
         })
@@ -91,9 +94,9 @@ const categoryDelete: RequestHandler = async (req, res) => {
     res.json({ message: `${deleted.count} category / categories successfully deleted.` })
 }
 
-categoryRouter.get('/', userIdMiddleware, categoryGet)
+categoryRouter.get('/:id?', userIdMiddleware, categoryGet)
 categoryRouter.post('/', userIdMiddleware, categoryPost)
-categoryRouter.put('/', userIdMiddleware, categoryUpdate)
-categoryRouter.delete('/', userIdMiddleware, categoryDelete)
+categoryRouter.put('/:id', userIdMiddleware, categoryUpdate)
+categoryRouter.delete('/:id', userIdMiddleware, categoryDelete)
 
 export default categoryRouter
