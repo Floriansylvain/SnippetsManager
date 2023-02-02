@@ -223,14 +223,24 @@ describe('POST /v1/snippet', () => {
     })
 })
 
-describe('GET /v1/snippet', () => {
-    it('returns status code 200 and success message', async () => {
+describe('GET /v1/snippet/:id?', () => {
+    it('returns status code 200 and all snippets', async () => {
         const res = await request(app)
             .get('/v1/snippet')
             .set('Content-Type', 'application/json')
             .set('Cookie', jwtCookie as string)
 
         snippet_id = res.body.snippets[0].id
+
+        expect(res.status).toEqual(200)
+        expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
+    })
+
+    it('returns status code 200 and one snippet', async () => {
+        const res = await request(app)
+            .get(`/v1/snippet/${snippet_id}`)
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
 
         expect(res.status).toEqual(200)
         expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
@@ -247,8 +257,6 @@ describe('PUT /v1/snippet/:id', () => {
                 code: '<p>en fait non à vuejs</p>',
                 // language: 'html'
             }))
-
-        console.debug(res.body)
 
         expect(res.status).toEqual(200)
         expect(res.body).toHaveProperty('message')
