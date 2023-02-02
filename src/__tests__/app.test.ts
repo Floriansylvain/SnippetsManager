@@ -181,18 +181,6 @@ describe('PUT /v1/category/:id', () => {
     })
 })
 
-describe('DELETE /v1/category/:id', () => {
-    it('returns status code 200 and a success message', async () => {
-        const res = await request(app)
-            .delete(`/v1/category/${category_id}`)
-            .set('Content-Type', 'application/json')
-            .set('Cookie', jwtCookie as string)
-
-        expect(res.status).toEqual(200)
-        expect(res.body).toHaveProperty('message')
-    })
-})
-
 describe('POST /v1/snippet', () => {
     it('returns status code 200 and the snippets', async () => {
         const res = await request(app)
@@ -209,7 +197,9 @@ describe('POST /v1/snippet', () => {
 
                     <style scoped>
                     </style>`,
-                language: 'vue'
+                language: 'vue',
+                tags: ['template', 'vuejs'],
+                category_id
             }))
 
         expect(res.status).toEqual(200)
@@ -228,18 +218,7 @@ describe('GET /v1/snippet/', () => {
 
         expect(res.status).toEqual(200)
         expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
-    })
-})
-
-describe('GET /v1/snippet/:id', () => {
-    it('returns status code 200 and one snippet', async () => {
-        const res = await request(app)
-            .get(`/v1/snippet/${snippet_id}`)
-            .set('Content-Type', 'application/json')
-            .set('Cookie', jwtCookie as string)
-
-        expect(res.status).toEqual(200)
-        expect(res.body.snippet.title).toEqual('Vue3 CompAPI TS script-template-style')
+        expect(res.body.snippets[0].category_id).toEqual(category_id)
     })
 })
 
@@ -251,7 +230,8 @@ describe('PUT /v1/snippet/:id', () => {
             .set('Cookie', jwtCookie as string)
             .send(JSON.stringify({
                 code: '<p>en fait non à vuejs</p>',
-                // language: 'html'
+                language: 'html',
+                tags: ['pouet', 'pouet', 'pouet']
             }))
 
         expect(res.status).toEqual(200)
@@ -259,10 +239,37 @@ describe('PUT /v1/snippet/:id', () => {
     })
 })
 
+
+describe('GET /v1/snippet/:id', () => {
+    it('returns status code 200 and one snippet', async () => {
+        const res = await request(app)
+            .get(`/v1/snippet/${snippet_id}`)
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+
+        expect(res.status).toEqual(200)
+        expect(res.body.snippet.tags.length).toEqual(3)
+        expect(res.body.snippet.tags).not.toContain('vuejs')
+        expect(res.body.snippet.category_id).toEqual(category_id)
+    })
+})
+
 describe('DELETE /v1/snippet/:id', () => {
     it('returns status code 200 and success message', async () => {
         const res = await request(app)
             .delete(`/v1/snippet/${snippet_id}`)
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+
+        expect(res.status).toEqual(200)
+        expect(res.body).toHaveProperty('message')
+    })
+})
+
+describe('DELETE /v1/category/:id', () => {
+    it('returns status code 200 and a success message', async () => {
+        const res = await request(app)
+            .delete(`/v1/category/${category_id}`)
             .set('Content-Type', 'application/json')
             .set('Cookie', jwtCookie as string)
 

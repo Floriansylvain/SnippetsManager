@@ -30,7 +30,7 @@ model Snippet {
   user_id     Int
   user        User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category_id Int?
-  category    Category?     @relation(fields: [category_id], references: [id])
+  category    Category?     @relation(fields: [category_id], references: [id], onDelete: SetNull, onUpdate: SetNull)
   language_id Int
   language    Language      @relation(fields: [language_id], references: [id])
   Snippet_tag Snippet_tag[]
@@ -52,9 +52,9 @@ model Language {
 
 model Snippet_tag {
   tag_id     Int
-  tag        Tag     @relation(fields: [tag_id], references: [id])
+  tag        Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   snippet_id Int
-  snippet    Snippet @relation(fields: [snippet_id], references: [id])
+  snippet    Snippet @relation(fields: [snippet_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([tag_id, snippet_id])
 }

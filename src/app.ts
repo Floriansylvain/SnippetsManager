@@ -1,13 +1,14 @@
 import express, { RequestHandler } from 'express'
-import userRouter from './routers/user.js'
 import * as dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { getJwtSecret } from './utils/jwt.js'
+
+import userRouter from './routers/user.js'
 import sessionRouter from './routers/session.js'
 import categoryRouter from './routers/category.js'
-import snippetRouter from './routers/snippet'
+import snippetRouter from './routers/snippet.js'
 
 const authMiddleware: RequestHandler = (req, res, next) => {
     const token = req.cookies.jwt
