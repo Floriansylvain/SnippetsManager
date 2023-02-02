@@ -21,20 +21,35 @@ const paramsIdParser = z.object({
 // TODO Ajouter pagination et queries de recherche
 const categoryGet: RequestHandler = async (req, res) => {
     let categories: Category[] | null = null
-    const whereClause: any = { user_id: req.body.userId }
-
-    if (req.params.id != undefined) {
-        whereClause.id = paramsIdParser.parse(req.params).id
-    }
 
     try {
-        categories = await prisma.category.findMany({ where: whereClause })
+        categories = await prisma.category.findMany({
+            where: { user_id: req.body.userId }
+        })
     } catch (error: any) {
         res.status(400).json({ message: (error.issues ?? error) })
         return;
     }
 
     res.json({ categories })
+}
+
+const categoryGetUnique: RequestHandler = async (req, res) => {
+    let category: Category | null = null
+
+    try {
+        category = await prisma.category.findFirst({
+            where: {
+                id: paramsIdParser.parse(req.params).id,
+                user_id: req.body.userId
+            }
+        })
+    } catch (error: any) {
+        res.status(400).json({ message: (error.issues ?? error) })
+        return;
+    }
+
+    res.json({ category })
 }
 
 const categoryPost: RequestHandler = async (req, res) => {
@@ -94,7 +109,8 @@ const categoryDelete: RequestHandler = async (req, res) => {
     res.json({ message: `${deleted.count} category / categories successfully deleted.` })
 }
 
-categoryRouter.get('/:id?', userIdMiddleware, categoryGet)
+categoryRouter.get('/', userIdMiddleware, categoryGet)
+categoryRouter.get('/:id', userIdMiddleware, categoryGetUnique)
 categoryRouter.post('/', userIdMiddleware, categoryPost)
 categoryRouter.put('/:id', userIdMiddleware, categoryUpdate)
 categoryRouter.delete('/:id', userIdMiddleware, categoryDelete)

@@ -127,7 +127,7 @@ describe('POST /v1/category', () => {
     })
 })
 
-describe('GET /v1/category/:id?', () => {
+describe('GET /v1/category/', () => {
     it('returns status code 200 and the categories', async () => {
         const res = await request(app)
             .get('/v1/category')
@@ -139,7 +139,9 @@ describe('GET /v1/category/:id?', () => {
         expect(res.status).toEqual(200)
         expect(res.body.categories[0].name).toEqual('VueJS Composition API')
     })
+})
 
+describe('GET /v1/category/:id', () => {
     it('returns status code 200 and the categories', async () => {
         const res = await request(app)
             .get(`/v1/category/${category_id}`)
@@ -147,7 +149,7 @@ describe('GET /v1/category/:id?', () => {
             .set('Cookie', jwtCookie as string)
 
         expect(res.status).toEqual(200)
-        expect(res.body.categories[0].name).toEqual('VueJS Composition API')
+        expect(res.body.category.name).toEqual('VueJS Composition API')
     })
 })
 
@@ -215,7 +217,7 @@ describe('POST /v1/snippet', () => {
     })
 })
 
-describe('GET /v1/snippet/:id?', () => {
+describe('GET /v1/snippet/', () => {
     it('returns status code 200 and all snippets', async () => {
         const res = await request(app)
             .get('/v1/snippet')
@@ -227,7 +229,9 @@ describe('GET /v1/snippet/:id?', () => {
         expect(res.status).toEqual(200)
         expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
     })
+})
 
+describe('GET /v1/snippet/:id', () => {
     it('returns status code 200 and one snippet', async () => {
         const res = await request(app)
             .get(`/v1/snippet/${snippet_id}`)
@@ -235,7 +239,7 @@ describe('GET /v1/snippet/:id?', () => {
             .set('Cookie', jwtCookie as string)
 
         expect(res.status).toEqual(200)
-        expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
+        expect(res.body.snippet.title).toEqual('Vue3 CompAPI TS script-template-style')
     })
 })
 

@@ -26,20 +26,35 @@ const paramsIdParser = z.object({
 // TODO Ajouter pagination
 const snippetGet: RequestHandler = async (req, res) => {
     let snippets: Snippet[] | null = null
-    const whereClause: any = { user_id: req.body.userId }
-
-    if (req.params.id != undefined) {
-        whereClause.id = paramsIdParser.parse(req.params).id
-    }
 
     try {
-        snippets = await prisma.snippet.findMany({ where: whereClause })
+        snippets = await prisma.snippet.findMany({
+            where: { user_id: req.body.userId }
+        })
     } catch (error: any) {
         res.status(400).json({ message: (error.issues ?? error) })
         return;
     }
 
     res.json({ snippets })
+}
+
+const snippetGetUnique: RequestHandler = async (req, res) => {
+    let snippet: Snippet | null = null
+
+    try {
+        snippet = await prisma.snippet.findFirst({
+            where: {
+                id: paramsIdParser.parse(req.params).id,
+                user_id: req.body.userId
+            }
+        })
+    } catch (error: any) {
+        res.status(400).json({ message: (error.issues ?? error) })
+        return;
+    }
+
+    res.json({ snippet })
 }
 
 const snippetPost: RequestHandler = async (req, res) => {
@@ -106,7 +121,8 @@ const snippetDelete: RequestHandler = async (req, res) => {
     res.json({ message: `${deleted.count} snippet(s) successfully deleted.` })
 }
 
-snippetRouter.get('/:id?', userIdMiddleware, snippetGet)
+snippetRouter.get('/', userIdMiddleware, snippetGet)
+snippetRouter.get('/:id', userIdMiddleware, snippetGetUnique)
 snippetRouter.post('/', userIdMiddleware, snippetPost)
 snippetRouter.put('/:id', userIdMiddleware, snippetUpdate)
 snippetRouter.delete('/:id', userIdMiddleware, snippetDelete)
