@@ -12,10 +12,6 @@ const snippetPostParser = z.object({
     language: z.string().max(32)
 }).required()
 
-const snippetDeleteParser = z.object({
-    id: z.number(),
-}).required()
-
 const snippetUpdateParser = z.object({
     code: z.string().optional(),
     title: z.string().max(50).optional(),
@@ -91,10 +87,9 @@ const snippetDelete: RequestHandler = async (req, res) => {
     let deleted: Prisma.BatchPayload
 
     try {
-        const snippetToDel = snippetDeleteParser.parse(req.body)
         deleted = await prisma.category.deleteMany({
             where: {
-                id: snippetToDel.id,
+                id: paramsIdParser.parse(req.params).id,
                 user_id: req.body.userId
             }
         })
@@ -109,6 +104,6 @@ const snippetDelete: RequestHandler = async (req, res) => {
 snippetRouter.get('/', userIdMiddleware, snippetGet)
 snippetRouter.post('/', userIdMiddleware, snippetPost)
 snippetRouter.put('/:id', userIdMiddleware, snippetUpdate)
-snippetRouter.delete('/', userIdMiddleware, snippetDelete)
+snippetRouter.delete('/:id', userIdMiddleware, snippetDelete)
 
 export default snippetRouter

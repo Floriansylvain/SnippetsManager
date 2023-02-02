@@ -255,15 +255,12 @@ describe('PUT /v1/snippet/:id', () => {
     })
 })
 
-describe('DELETE /v1/snippet', () => {
+describe('DELETE /v1/snippet/:id', () => {
     it('returns status code 200 and success message', async () => {
         const res = await request(app)
-            .delete('/v1/snippet')
+            .delete(`/v1/snippet/${snippet_id}`)
             .set('Content-Type', 'application/json')
             .set('Cookie', jwtCookie as string)
-            .send(JSON.stringify({
-                id: snippet_id
-            }))
 
         expect(res.status).toEqual(200)
         expect(res.body).toHaveProperty('message')
