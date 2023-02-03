@@ -1,12 +1,8 @@
 import { Prisma, PrismaClient, Snippet } from "@prisma/client"
 import express, { RequestHandler } from "express"
 import { z } from "zod"
+import { Pagination, getPaginationLinks, queryPaginationParser } from "../utils/pagination.js"
 import { userIdMiddleware } from "./user.js"
-
-interface Pagination {
-    skip: number,
-    take: number
-}
 
 const snippetRouter = express.Router()
 const prisma = new PrismaClient()
@@ -30,23 +26,11 @@ const paramsIdParser = z.object({
     id: z.coerce.number(),
 }).required()
 
-const queryPaginationParser = z.object({
-    skip: z.coerce.number().optional().default(0),
-    take: z.coerce.number().optional().default(10)
-})
-
 function shortenSnippetsTagDepth(snippets: Snippet[]) {
     snippets.forEach((snippet: any) => {
         snippet.tags = snippet.Snippet_tag.map((x: any) => ({ ...x.tag }))
         snippet.Snippet_tag = undefined
     })
-}
-
-function getPaginationLinks(query: Pagination): object {
-    return {
-        next: `/v1/snippet?start=${query.skip + query.take}&per_page=${query.take}`,
-        prev: `/v1/snippet?start=${Math.max(0, query.skip - query.take)}&per_page=${query.take}`
-    }
 }
 
 async function findSnippets(userId: number, pagination: Pagination): Promise<Snippet[]> {
@@ -76,7 +60,7 @@ const snippetGet: RequestHandler = async (req, res) => {
     res.json({
         snippets,
         pagination,
-        links: getPaginationLinks(pagination),
+        links: getPaginationLinks(pagination, 'snippet'),
         total: snippets.length
     })
 }

@@ -139,6 +139,17 @@ describe('GET /v1/category/', () => {
         expect(res.status).toEqual(200)
         expect(res.body.categories[0].name).toEqual('VueJS Composition API')
     })
+
+    it('returns status code 200 and no categories', async () => {
+        const res = await request(app)
+            .get('/v1/category?skip=5&take=5')
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+
+        expect(res.status).toEqual(200)
+        expect(res.body.links.next).toEqual('/v1/category?start=10&per_page=5')
+        expect(res.body.links.prev).toEqual('/v1/category?start=0&per_page=5')
+    })
 })
 
 describe('GET /v1/category/:id', () => {

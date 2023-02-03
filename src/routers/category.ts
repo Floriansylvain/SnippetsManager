@@ -1,6 +1,7 @@
 import { Category, Prisma, PrismaClient } from "@prisma/client"
 import express, { RequestHandler } from "express"
 import { z } from "zod"
+import { getPaginationLinks, Pagination, queryPaginationParser } from "../utils/pagination.js"
 import { userIdMiddleware } from "./user.js"
 
 const categoryRouter = express.Router()
@@ -18,20 +19,30 @@ const paramsIdParser = z.object({
     id: z.coerce.number(),
 }).required()
 
-// TODO Ajouter pagination et queries de recherche
+async function findCategories(userId: number, pagination: Pagination): Promise<Category[]> {
+    return await prisma.category.findMany({
+        where: { user_id: userId },
+        ...pagination
+    })
+}
+
 const categoryGet: RequestHandler = async (req, res) => {
     let categories: Category[] | null = null
+    const pagination = queryPaginationParser.parse(req.query)
 
     try {
-        categories = await prisma.category.findMany({
-            where: { user_id: req.body.userId }
-        })
+        categories = await findCategories(req.body.userId, pagination)
     } catch (error: any) {
         res.status(400).json({ message: (error.issues ?? error) })
         return;
     }
 
-    res.json({ categories })
+    res.json({
+        categories,
+        pagination,
+        links: getPaginationLinks(pagination, 'category'),
+        total: categories.length
+    })
 }
 
 const categoryGetUnique: RequestHandler = async (req, res) => {
