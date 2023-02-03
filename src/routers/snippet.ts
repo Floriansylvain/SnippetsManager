@@ -3,6 +3,11 @@ import express, { RequestHandler } from "express"
 import { z } from "zod"
 import { userIdMiddleware } from "./user.js"
 
+interface Pagination {
+    skip: number,
+    take: number
+}
+
 const snippetRouter = express.Router()
 const prisma = new PrismaClient()
 
@@ -25,6 +30,11 @@ const paramsIdParser = z.object({
     id: z.coerce.number(),
 }).required()
 
+const queryPaginationParser = z.object({
+    skip: z.coerce.number().optional().default(0),
+    take: z.coerce.number().optional().default(10)
+})
+
 function shortenSnippetsTagDepth(snippets: Snippet[]) {
     snippets.forEach((snippet: any) => {
         snippet.tags = snippet.Snippet_tag.map((x: any) => ({ ...x.tag }))
@@ -32,27 +42,43 @@ function shortenSnippetsTagDepth(snippets: Snippet[]) {
     })
 }
 
-// TODO Ajouter paramètres sur la requête pour rechercher des snippets
-// TODO Ajouter pagination
+function getPaginationLinks(query: Pagination): object {
+    return {
+        next: `/v1/snippet?start=${query.skip + query.take}&per_page=${query.take}`,
+        prev: `/v1/snippet?start=${Math.max(0, query.skip - query.take)}&per_page=${query.take}`
+    }
+}
+
+async function findSnippets(userId: number, pagination: Pagination): Promise<Snippet[]> {
+    return await prisma.snippet.findMany({
+        where: { user_id: userId },
+        include: {
+            Snippet_tag: {
+                select: { tag: { select: { id: true, name: true } } },
+            }
+        },
+        ...pagination
+    })
+}
+
 const snippetGet: RequestHandler = async (req, res) => {
     let snippets: Snippet[] | null = null
+    const pagination = queryPaginationParser.parse(req.query)
 
     try {
-        snippets = await prisma.snippet.findMany({
-            where: { user_id: req.body.userId },
-            include: {
-                Snippet_tag: {
-                    select: { tag: { select: { id: true, name: true } } },
-                }
-            }
-        })
+        snippets = await findSnippets(req.body.userId, pagination)
         shortenSnippetsTagDepth(snippets)
     } catch (error: any) {
         res.status(400).json({ message: (error.issues ?? error) })
         return;
     }
 
-    res.json({ snippets })
+    res.json({
+        snippets,
+        pagination,
+        links: getPaginationLinks(pagination),
+        total: snippets.length
+    })
 }
 
 const snippetGetUnique: RequestHandler = async (req, res) => {

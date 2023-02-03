@@ -220,6 +220,17 @@ describe('GET /v1/snippet/', () => {
         expect(res.body.snippets[0].title).toEqual('Vue3 CompAPI TS script-template-style')
         expect(res.body.snippets[0].category_id).toEqual(category_id)
     })
+
+    it('returns status code 200 and no snippets', async () => {
+        const res = await request(app)
+            .get('/v1/snippet?skip=5&take=5')
+            .set('Content-Type', 'application/json')
+            .set('Cookie', jwtCookie as string)
+
+        expect(res.status).toEqual(200)
+        expect(res.body.links.next).toEqual('/v1/snippet?start=10&per_page=5')
+        expect(res.body.links.prev).toEqual('/v1/snippet?start=0&per_page=5')
+    })
 })
 
 describe('PUT /v1/snippet/:id', () => {
