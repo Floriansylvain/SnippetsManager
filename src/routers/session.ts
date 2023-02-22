@@ -48,8 +48,7 @@ async function getUserByEmail(email: string): Promise<User | null> {
 
 function parseLoginData(data: any): LoginData | undefined {
     try {
-        const loginData: LoginData = LoginValidator.parse(data)
-        return loginData
+        return LoginValidator.parse(data)
     } catch {
         return undefined
     }
@@ -63,7 +62,7 @@ export const userRouterPostLogin: RequestHandler = async (req, res) => {
     }
 
     const user = await getUserByEmail(loginData.email)
-    if (await isUserValid(user, loginData) === false) {
+    if (!await isUserValid(user, loginData)) {
         res.status(400).json({ message: 'Incorrect credentials.' })
         return;
     }
@@ -90,7 +89,7 @@ export const userRouterPostRegister: RequestHandler = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(loginData.password, 10)
 
-    createUser(loginData.email, hashedPassword)
+    await createUser(loginData.email, hashedPassword)
 
     res.json({ message: 'User successfully created!' })
 }
