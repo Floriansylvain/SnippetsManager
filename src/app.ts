@@ -1,8 +1,12 @@
-import express, { RequestHandler } from "express"
 import * as dotenv from "dotenv"
+import express, { RequestHandler } from "express"
 import jwt from "jsonwebtoken"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+
+import swaggerUi from "swagger-ui-express"
+import swaggerSpec from "./assets/swaggerSpec.js"
+
 import { getJwtSecret } from "./utils/jwt.js"
 
 import userRouter from "./routers/user.js"
@@ -64,6 +68,7 @@ export function initServer(): express.Express {
 	appRouter.use("/snippet/", authMiddleware, snippetRouter)
 
 	app.use("/v1/", appRouter)
+	app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 	return app
 }
