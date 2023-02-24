@@ -11,10 +11,11 @@ export const queryPaginationParser = z.object({
 })
 
 export function getPaginationLinks(query: Pagination, routeName: string): object {
+	const nextStart = query.skip + query.take
+	const prevStart = Math.max(0, query.skip - query.take)
+
 	return {
-		next: `/v1/${routeName}?start=${query.skip + query.take}&per_page=${query.take}`,
-		prev: `/v1/${routeName}?start=${Math.max(0, query.skip - query.take)}&per_page=${
-			query.take
-		}`,
+		next: `/v1/${routeName}?start=${nextStart}&per_page=${query.take}`,
+		prev: `/v1/${routeName}?start=${prevStart}&per_page=${query.take}`,
 	}
 }
