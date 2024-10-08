@@ -17,7 +17,6 @@ services:
       retries: 10
   backend:
     build: .
-    image: snippetsmanager-backend
     depends_on:
       db:
         condition: service_healthy

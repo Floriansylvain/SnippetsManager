@@ -1,0 +1,3 @@
+[submodule "snippets-manager-front"]
+	path = snippets-manager-front
+	url = git@github.com:Floriansylvain/snippets-manager-front.git
