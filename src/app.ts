@@ -9,6 +9,7 @@ import swaggerSpec from "./assets/swaggerSpec.js"
 
 import { getJwtSecret } from "./utils/jwt.js"
 
+import frontRouter from "./routers/front.js"
 import userRouter from "./routers/user.js"
 import sessionRouter from "./routers/session.js"
 import categoryRouter from "./routers/category.js"
@@ -52,25 +53,26 @@ function initEnvVariables(): void {
 export function initServer(): express.Express {
 	initEnvVariables()
 
-	const app = express()
-	const appRouter = express.Router()
+	const api = express()
+	const apiRouter = express.Router()
 
-	app.use(cors({ origin: process.env.FRONT_ORIGIN, credentials: true }))
-	app.use(cookieParser())
-	app.use(express.json())
-	app.use(express.urlencoded({ extended: false }))
+	api.use(cors({ origin: process.env.FRONT_ORIGIN, credentials: true }))
+	api.use(cookieParser())
+	api.use(express.json())
+	api.use(express.urlencoded({ extended: false }))
 
-	appRouter.get("/", appRouterGet)
+	apiRouter.get("/", appRouterGet)
 
-	appRouter.use("/session/", sessionRouter)
-	appRouter.use("/user/", authMiddleware, userRouter)
-	appRouter.use("/category/", authMiddleware, categoryRouter)
-	appRouter.use("/snippet/", authMiddleware, snippetRouter)
+	apiRouter.use("/session/", sessionRouter)
+	apiRouter.use("/user/", authMiddleware, userRouter)
+	apiRouter.use("/category/", authMiddleware, categoryRouter)
+	apiRouter.use("/snippet/", authMiddleware, snippetRouter)
 
-	app.use("/v1/", appRouter)
-	app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+	api.use("/", frontRouter)
+	api.use("/v1/", apiRouter)
+	api.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
-	return app
+	return api
 }
 
 export function startServer(app: express.Express): void {
