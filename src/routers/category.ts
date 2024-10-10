@@ -2,7 +2,7 @@ import { Category, Prisma, PrismaClient } from "@prisma/client"
 import express, { RequestHandler } from "express"
 import { z } from "zod"
 import { getPaginationLinks, Pagination, queryPaginationParser } from "../utils/pagination.js"
-import { userIdMiddleware } from "./user.js"
+import { parseJwtUserId, userIdMiddleware } from "./user.js"
 
 const categoryRouter = express.Router()
 const prisma = new PrismaClient()
@@ -37,7 +37,8 @@ const categoryGet: RequestHandler = async (req, res) => {
 	const pagination = queryPaginationParser.parse(req.query)
 
 	try {
-		categories = await findCategories(req.body.userId, pagination)
+		const userId = parseJwtUserId(req.cookies.jwt)
+		categories = await findCategories(userId ?? -1, pagination)
 	} catch (error: any) {
 		res.status(400).json({ message: error.issues ?? error })
 		return
@@ -55,10 +56,11 @@ const categoryGetUnique: RequestHandler = async (req, res) => {
 	let category: Category | null = null
 
 	try {
+		const userId = parseJwtUserId(req.cookies.jwt)
 		category = await prisma.category.findFirst({
 			where: {
 				id: paramsIdParser.parse(req.params).id,
-				user_id: req.body.userId,
+				user_id: userId,
 			},
 		})
 	} catch (error: any) {
@@ -71,19 +73,19 @@ const categoryGetUnique: RequestHandler = async (req, res) => {
 
 const categoryPost: RequestHandler = async (req, res) => {
 	try {
-		const newCategory = categoryPostParser.parse(req.body)
-		await prisma.category.create({
+		const userId = parseJwtUserId(req.cookies.jwt)
+		const parsedCategory = categoryPostParser.parse(req.body)
+		const newCategorey = await prisma.category.create({
 			data: {
-				name: newCategory.name,
-				user_id: req.body.userId,
+				name: parsedCategory.name,
+				user_id: userId ?? -1,
 			},
 		})
+		res.json({ message: "Category successfully added.", id: newCategorey.id })
 	} catch (error: any) {
 		res.status(400).json({ message: error.issues ?? error })
 		return
 	}
-
-	res.json({ message: "Category successfully added." })
 }
 
 const categoryUpdate: RequestHandler = async (req, res) => {
@@ -91,10 +93,11 @@ const categoryUpdate: RequestHandler = async (req, res) => {
 
 	try {
 		const categoryToUpdate = categoryUpdateParser.parse(req.body)
+		const userId = parseJwtUserId(req.cookies.jwt)
 		updated = await prisma.category.updateMany({
 			where: {
 				id: paramsIdParser.parse(req.params).id,
-				user_id: req.body.userId,
+				user_id: userId,
 			},
 			data: {
 				name: categoryToUpdate.name,
@@ -112,10 +115,11 @@ const categoryDelete: RequestHandler = async (req, res) => {
 	let deleted: Prisma.BatchPayload
 
 	try {
+		const userId = parseJwtUserId(req.cookies.jwt)
 		deleted = await prisma.category.deleteMany({
 			where: {
 				id: paramsIdParser.parse(req.params).id,
-				user_id: req.body.userId,
+				user_id: userId,
 			},
 		})
 	} catch (error: any) {

@@ -11,6 +11,6 @@ const getAll: RequestHandler = async (req, res) => {
 }
 
 frontRouter.use(express.static("snippets-manager-front/dist"))
-frontRouter.get("/*", getAll)
+frontRouter.get("/", getAll)
 
 export default frontRouter

@@ -67,12 +67,19 @@ export const userRouterPostLogin: RequestHandler = async (req, res) => {
 		return
 	}
 
-	const jwtToken = jwt.sign({ userId: user?.id }, getJwtSecret(), { expiresIn: "1h" })
+	const jwtToken = jwt.sign({ userId: user?.id }, getJwtSecret(), { expiresIn: "2h" })
 	res.cookie("jwt", jwtToken, {
 		httpOnly: true,
 		secure: true,
+		expires: new Date(new Date().getTime() + 7200000),
 		sameSite: "strict",
 	}).json({ message: "Logged in! httpOnly cookie set." })
+}
+
+export const userRouterPostLogout: RequestHandler = async (req, res) => {
+	res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "strict" }).json({
+		message: "httpOnly cookie removed.",
+	})
 }
 
 export const userRouterPostRegister: RequestHandler = async (req, res) => {
@@ -95,6 +102,7 @@ export const userRouterPostRegister: RequestHandler = async (req, res) => {
 }
 
 sessionRouter.post("/login", userRouterPostLogin)
+sessionRouter.post("/logout", userRouterPostLogout)
 sessionRouter.post("/register", userRouterPostRegister)
 
 export default sessionRouter
