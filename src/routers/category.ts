@@ -25,6 +25,12 @@ const paramsIdParser = z
 	})
 	.required()
 
+const categoryDeleteManyParser = z
+	.object({
+		ids: z.array(z.coerce.number()),
+	})
+	.required()
+
 async function findCategories(userId: number, pagination: Pagination): Promise<Category[]> {
 	const query: any = {
 		where: { user_id: userId },
@@ -137,10 +143,31 @@ const categoryDelete: RequestHandler = async (req, res) => {
 	}
 }
 
+const categoryDeleteMany: RequestHandler = async (req, res) => {
+	let deleted: Prisma.BatchPayload
+
+	try {
+		const userId = parseJwtUserId(req.cookies.jwt)
+		const ids = categoryDeleteManyParser.parse(req.body).ids
+		deleted = await prisma.category.deleteMany({
+			where: {
+				id: { in: ids },
+				user_id: userId,
+			},
+		})
+	} catch (error: any) {
+		res.status(400).json({ message: error.issues ?? error })
+		return
+	}
+
+	res.json({ message: `${deleted.count} category / categories successfully deleted.` })
+}
+
 categoryRouter.get("/", userIdMiddleware, categoryGet)
 categoryRouter.get("/:id", userIdMiddleware, categoryGetUnique)
 categoryRouter.post("/", userIdMiddleware, categoryPost)
 categoryRouter.put("/:id", userIdMiddleware, categoryUpdate)
 categoryRouter.delete("/:id", userIdMiddleware, categoryDelete)
+categoryRouter.delete("/", userIdMiddleware, categoryDeleteMany)
 
 export default categoryRouter
