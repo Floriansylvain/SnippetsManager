@@ -26,19 +26,29 @@ const paramsIdParser = z
 	.required()
 
 async function findCategories(userId: number, pagination: Pagination): Promise<Category[]> {
-	return await prisma.category.findMany({
+	const query: any = {
 		where: { user_id: userId },
-		...pagination,
-	})
+		skip: pagination.skip,
+		take: pagination.take,
+	}
+
+	if (pagination.orderBy) {
+		query.orderBy = [{ [pagination.orderBy]: pagination.direction }]
+	}
+
+	return prisma.category.findMany(query)
 }
 
 const categoryGet: RequestHandler = async (req, res) => {
 	let categories: Category[] | null = null
-	const pagination = queryPaginationParser.parse(req.query)
+	let categoriesTotal: number = 0
+	let pagination = {} as Pagination
 
 	try {
+		pagination = queryPaginationParser.parse(req.query)
 		const userId = parseJwtUserId(req.cookies.jwt)
 		categories = await findCategories(userId ?? -1, pagination)
+		categoriesTotal = await prisma.category.count({ where: { user_id: userId } })
 	} catch (error: any) {
 		res.status(400).json({ message: error.issues ?? error })
 		return
@@ -48,7 +58,7 @@ const categoryGet: RequestHandler = async (req, res) => {
 		categories,
 		pagination,
 		links: getPaginationLinks(pagination, "category"),
-		total: categories.length,
+		total: categoriesTotal,
 	})
 }
 
@@ -112,22 +122,19 @@ const categoryUpdate: RequestHandler = async (req, res) => {
 }
 
 const categoryDelete: RequestHandler = async (req, res) => {
-	let deleted: Prisma.BatchPayload
-
 	try {
 		const userId = parseJwtUserId(req.cookies.jwt)
-		deleted = await prisma.category.deleteMany({
+		const deleted = await prisma.category.delete({
 			where: {
 				id: paramsIdParser.parse(req.params).id,
 				user_id: userId,
 			},
 		})
+		res.json({ message: `Category successfully deleted.`, id: deleted.id })
 	} catch (error: any) {
 		res.status(400).json({ message: error.issues ?? error })
 		return
 	}
-
-	res.json({ message: `${deleted.count} category / categories successfully deleted.` })
 }
 
 categoryRouter.get("/", userIdMiddleware, categoryGet)
