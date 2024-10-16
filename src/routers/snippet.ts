@@ -45,7 +45,8 @@ async function findSnippets(userId: number, pagination: Pagination): Promise<Sni
 				select: { tag: { select: { id: true, name: true } } },
 			},
 		},
-		...pagination,
+		skip: pagination.skip,
+		take: pagination.take,
 	})
 }
 
@@ -124,7 +125,7 @@ async function updateSnippet(
 	snippetId: number,
 	userId: number,
 	languageId: number | undefined,
-	snippetData: any
+	snippetData: any,
 ): Promise<Prisma.BatchPayload> {
 	return await prisma.snippet.updateMany({
 		where: {
@@ -143,7 +144,7 @@ async function updateSnippet(
 async function updateTagsFromSnippet(
 	snippetId: number,
 	userId: number,
-	snippetData: any
+	snippetData: any,
 ): Promise<void> {
 	if (snippetData.tags == undefined) return
 
